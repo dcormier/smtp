@@ -254,7 +254,9 @@ func (proto *Protocol) Command(command *Command) (reply *Reply) {
 		return ReplyBye()
 	case "RSET" == command.verb:
 		proto.logf("Got RSET command, switching to MAIL state")
+		helo := proto.Message.Helo
 		proto.resetState()
+		proto.Message.Helo = helo
 		proto.State = MAIL
 		return ReplyOk()
 	case "NOOP" == command.verb:
@@ -435,6 +437,7 @@ func (proto *Protocol) Command(command *Command) (reply *Reply) {
 // HELO creates a reply to a HELO command
 func (proto *Protocol) HELO(args string) (reply *Reply) {
 	proto.logf("Got HELO command, switching to MAIL state")
+	proto.resetState()
 	proto.State = MAIL
 	proto.Message.Helo = args
 	proto.isExtendedSMTP = false
@@ -444,6 +447,7 @@ func (proto *Protocol) HELO(args string) (reply *Reply) {
 // EHLO creates a reply to a EHLO command
 func (proto *Protocol) EHLO(args string) (reply *Reply) {
 	proto.logf("Got EHLO command, switching to MAIL state")
+	proto.resetState()
 	proto.State = MAIL
 	proto.Message.Helo = args
 	proto.isExtendedSMTP = true
